@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="EUC-KR">
+<title>Insert title here</title>
+<link rel="stylesheet" href="jquery-ui-1.12.1/jquery-ui.min.css">
+<style type="text/css">
+*{margin: 0px; padding: 0px;}
+body{font: 62.5%}
+.item{margin: 3px; padding: 5px}
+.item > img{width: 50px; height: 50px;}
+#wrap{overflow: hidden;}
+#wrap > div{float: left;}
+#doc{position: fixed; min-height: 120px; width: 100%; bottom: 0px; z-index: 1px;}
+#doc > div{float: right;}
+p{font-size: 12px;}
+#bag{float: right;}
+
+</style>
+<script type="text/javascript" src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+<script type="text/javascript" src="jquery-ui-1.12.1/jquery-ui.min.js"></script>
+<script type="text/javascript">
+$(function(){	
+	
+	$("#bag").click(function(){
+		var cartList = $("#doc > .item");
+		//var qtyList = $("#doc > option");
+		//alert(cartList.length); -> doc에 담긴 상품의 갯수
+		$.each(cartList, function(idx,item){
+			var gno = $(item).attr("gno");
+			var qty = $(item).find(".qty").val();
+			var g = {gno:gno,qty:qty};
+			alert(qty);
+			$.ajax("insertCart",{data:g,success:function(){
+				
+			}});
+		});		
+	});	
+	
+	$.getJSON("goodsList",function(arr){				
+		$.each(arr,function(idx,g){			
+			var item = $("<div class='ui-widget-content ui-corner-all item'></div>").attr("gno",g.no);
+			var img = $("<img></img>").attr("src","img/"+g.fname);			
+			
+			var p_item = $("<p></p>").html("상품명: "+g.item);
+			var p_price = $("<p></p>").html("상품가격: "+g.price);
+			var p_qty = $("<input type='number' class='qty'/>").val(1);	
+			$(p_qty).css("visibility","hidden");
+			
+			$(item).append(img,p_item,p_price,p_qty);
+			$("#wrap").append(item);			
+		});
+		
+		$("#wrap > div").draggable({
+			helper:"clone",
+			zIndex:100,
+			scroll:false
+		});
+		
+		$("#doc").droppable({
+			accept: "#wrap > div",
+			drop:function(event, ui){
+				$(ui.draggable).fadeOut(function(){
+					$(this).appendTo("#doc").fadeIn();
+					$(this).find(".qty").css("visibility","visible");
+				});
+				
+			}
+		});
+		$("body").droppable({
+			accept: "#doc > div",
+			drop:function(event, ui){
+				$(ui.draggable).fadeOut(function(){
+					$(this).appendTo("#wrap").fadeIn();
+				});
+			}
+		});
+	});	
+});
+</script>
+</head>
+<body>
+	<div id="wrap"></div>
+	<button id="bag">담기</button>	
+	<div id="doc" class="ui-state-error"></div>
+</body>
+</html>

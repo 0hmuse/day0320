@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="EUC-KR">
+<title>Insert title here</title>
+<link rel="stylesheet" href="jquery-ui-1.12.1/jquery-ui.min.css">
+<style type="text/css">
+	body{
+	 font-size: 62.5%;
+	}
+	h2{
+	 text-align: center;
+	}
+	input[type=text],label{
+	 margin-bottom: 12px;
+	 padding: 0.4em;
+	 width: 95%;
+	}
+</style>
+<script type="text/javascript" src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+<script type="text/javascript" src="jquery-ui-1.12.1/jquery-ui.min.js"></script>
+<script type="text/javascript">
+$(function(){
+	var arr;
+	
+	function printEvent(){
+		$.getJSON("listEvent",function(data){
+			$("#output").empty();
+			arr = data;
+			//alert(data);
+			$.each(arr,function(idx,s){
+				//alert(item.event);
+				$("#output").append($("<h2></h2>").html(s.event+":"+s.day));				
+			});
+		});
+	};
+	
+	$("#openRead").click(function(){
+		printEvent();	
+	});		
+	
+	$("#openBtn").click(function(){
+		$("#dialog").dialog('open');
+	});	
+	
+	$("#dialog").dialog({		
+		buttons:{
+			submit:function(){								
+				var data = $("#f").serialize(); //name="" db 컬럼명이랑 같아야함		
+				//alert(data);
+				$.ajax("insertEvent",{data:data,success:function(r){
+					printEvent();
+					$("#event_name").val("");
+					$("#event_date").val("");
+					$("#dialog").dialog('close');
+				}});				
+			},
+			reset:function(){
+				$("#event_name").val("");
+				$("#event_date").val("");
+			},
+			cancle:function(){
+				$("#event_name").val("");
+				$("#event_date").val("");
+				$("#dialog").dialog('close');
+			}
+		},
+		modal:true,
+		autoOpen:false
+	});
+	$("#event_date").datepicker({
+		numberOfMonths:3,
+		dateFormat:"yy년mm월dd일"
+	});
+});
+</script>
+</head>
+<body>
+<h1 id="openBtn">일정생성</h1>
+<h1 id="openRead">일정보기</h1>
+<hr>
+
+<div id="output" title="일정생성"></div>
+
+<div id="dialog" title="일정등록">
+	<h2>일정등록</h2>
+	<form id="f">
+		<label for="event_name">일정이름</label>
+		<input type="text" id="event_name" name="event">
+		<label for="event_date">날짜</label>
+		<input type="text" id="event_date" name="day">
+	</form>
+</div>
+</body>
+</html>

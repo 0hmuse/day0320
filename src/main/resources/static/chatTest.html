@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="EUC-KR">
+<title>Insert title here</title>
+<script type="text/javascript" src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+<script type="text/javascript">
+$(function(){
+	//내글 등록하기
+	$("#write").click(function(){
+		var chat = $("#f").serialize();
+		$.ajax("chatInsert",{data:chat,success:function(r){
+			
+		}});
+	});	
+	
+	//대화목록 읽어오기
+	setInterval(function(){
+		$("#list").empty();
+		var today = new Date();
+		$.getJSON("chatList?a="+today,function(data){
+							// 계속 다른 요청이다
+			$.each(data,function(idx ,chat){
+				$("#list").append($("<p></p>").html("["+chat.name+"]"+chat.msg));
+			});		
+		});
+	},1000);
+});
+</script>
+</head>
+<body>
+	<h2>이야기해봐요!</h2>
+	<hr>
+
+	<form id="f">
+		<p>
+			<label for="name">닉네임</label>
+			<input type="text" id="name" name="name">
+		</p>
+		<p>
+			<label for="msg">메세지</label>
+			<textarea rows="5" cols="20" id="msg" name="msg"></textarea>
+		</p>		
+	</form>
+	<button id="write">글쓰기</button>
+	<hr>
+	<div id="list"></div>
+</body>
+</html>
